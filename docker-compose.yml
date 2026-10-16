@@ -1,0 +1,17 @@
+services:
+  converter:
+    build: .
+    image: btc2b-converter:3.0
+    container_name: btc2b-converter
+    restart: unless-stopped
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 100
+    mem_limit: 128m
+    environment:
+      CACHE_TTL_SECONDS: "60"
+    ports:
+      - "127.0.0.1:3002:3000"

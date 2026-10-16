@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#0A1F44">
+<title>Bitcoin converter | BTC2B Group</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --navy: #0A1F44;
+    --ink: #0D1B2A;
+    --bridge: #1A3A6B;
+    --orange: #F47920;
+    --orange-light: #F9A825;
+    --slate: #8B96A8;
+    --bg: #F5F7FA;
+    --border: rgba(10,31,68,0.12);
+    --green: #28A745;
+    --warn-text: #856404;
+    --warn-bg: #FFF3CD;
+    box-sizing: border-box;
+    padding-top: env(safe-area-inset-top, 0px);
+    padding-bottom: env(safe-area-inset-bottom, 0px);
+  }
+  *, *::before, *::after { box-sizing: inherit; }
+  html { scroll-padding-top: env(safe-area-inset-top, 0px); -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    font-family: "Montserrat", system-ui, -apple-system, "Segoe UI", Arial, sans-serif;
+    font-size: 16px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--bg);
+    min-height: 100vh;
+  }
+  .hero {
+    background:
+      radial-gradient(600px 300px at 85% -10%, rgba(255,255,255,0.10), transparent 70%),
+      linear-gradient(135deg, var(--navy), var(--bridge));
+    color: #fff;
+    padding: 20px 20px 120px;
+  }
+  .wrap { max-width: 720px; margin: 0 auto; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 44px; }
+  .brand { font-weight: 800; font-size: 15px; letter-spacing: 0.01em; }
+  .pill {
+    display: inline-flex; align-items: center; gap: 8px;
+    font-size: 12px; font-weight: 600;
+    padding: 6px 12px; border-radius: 999px;
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: #fff;
+    white-space: nowrap;
+  }
+  .pill i { width: 8px; height: 8px; border-radius: 50%; background: var(--slate); }
+  .pill.live i { background: var(--green); box-shadow: 0 0 0 0 rgba(40,167,69,0.6); animation: pulse 2s infinite; }
+  .pill.warn i { background: var(--orange-light); }
+  @keyframes pulse {
+    0% { box-shadow: 0 0 0 0 rgba(40,167,69,0.55); }
+    70% { box-shadow: 0 0 0 8px rgba(40,167,69,0); }
+    100% { box-shadow: 0 0 0 0 rgba(40,167,69,0); }
+  }
+  .kicker { color: var(--orange-light); font-weight: 600; font-size: 12px; letter-spacing: 0.14em; text-transform: uppercase; margin: 0 0 10px; }
+  h1 { margin: 0 0 10px; font-weight: 800; font-size: clamp(30px, 6vw, 44px); line-height: 1.1; letter-spacing: -0.02em; }
+  h1 .dot { color: var(--orange); }
+  .hero p.sub { margin: 0; color: rgba(255,255,255,0.78); font-size: 16px; max-width: 46ch; }
+
+  main { max-width: 720px; margin: -72px auto 0; padding: 0 16px 48px; }
+  .card {
+    background: #fff;
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 24px;
+    box-shadow: 0 24px 48px -24px rgba(10,31,68,0.35);
+  }
+  .card + .card { margin-top: 16px; box-shadow: none; }
+  @media (max-width: 480px) { .card { padding: 18px; border-radius: 16px; } }
+
+  .seg {
+    position: relative;
+    display: grid; grid-template-columns: repeat(4, 1fr);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 4px;
+    isolation: isolate;
+  }
+  .seg .thumb {
+    position: absolute; z-index: -1;
+    top: 4px; bottom: 4px; left: 4px;
+    width: calc((100% - 8px) / 4);
+    background: var(--navy);
+    border-radius: 9px;
+    transform: translateX(calc(var(--i, 0) * 100%));
+    transition: transform .25s cubic-bezier(.3,.8,.3,1);
+  }
+  .seg button {
+    font: inherit; font-weight: 700; font-size: 14px;
+    padding: 10px 0; background: transparent; border: 0; border-radius: 9px;
+    color: var(--navy); cursor: pointer;
+    transition: color .2s;
+  }
+  .seg button[aria-pressed="true"] { color: #fff; }
+
+  .amount {
+    display: flex; align-items: baseline; gap: 10px;
+    margin: 22px 0 6px;
+    border-bottom: 2px solid var(--border);
+    padding-bottom: 6px;
+    transition: border-color .2s;
+  }
+  .amount:focus-within { border-color: var(--navy); }
+  .amount input {
+    flex: 1; min-width: 0;
+    font: inherit; font-weight: 800;
+    font-size: clamp(30px, 8vw, 44px); line-height: 1.2;
+    letter-spacing: -0.02em;
+    color: var(--navy);
+    border: 0; background: transparent; padding: 0;
+    font-variant-numeric: tabular-nums;
+  }
+  .amount input:focus { outline: none; }
+  .amount .suffix { font-weight: 700; font-size: 16px; color: var(--slate); }
+
+  .chips { display: flex; flex-wrap: wrap; gap: 8px; margin: 12px 0 0; }
+  .chips button {
+    font: inherit; font-weight: 600; font-size: 13px;
+    padding: 6px 12px; border-radius: 999px;
+    background: #fff; color: var(--navy);
+    border: 1px solid var(--border); cursor: pointer;
+    transition: border-color .15s, background .15s;
+  }
+  .chips button:hover { border-color: var(--navy); background: var(--bg); }
+
+  .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 24px; }
+  @media (max-width: 620px) { .grid { grid-template-columns: 1fr; } }
+  .tile {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 14px;
+    padding: 16px;
+    display: flex; flex-direction: column; gap: 4px; min-width: 0;
+  }
+  .tile .label { font-size: 12px; font-weight: 600; letter-spacing: 0.1em; text-transform: uppercase; color: var(--slate); }
+  .tile .value {
+    font-size: 24px; font-weight: 800; color: var(--navy);
+    letter-spacing: -0.01em; line-height: 1.25;
+    overflow-wrap: anywhere;
+    font-variant-numeric: tabular-nums;
+  }
+  .tile .value small { font-size: 13px; font-weight: 700; color: var(--slate); margin-left: 4px; letter-spacing: 0; }
+  .tile .copy {
+    align-self: flex-start; margin-top: 6px;
+    font: inherit; font-size: 12px; font-weight: 700;
+    padding: 4px 10px; border-radius: 8px;
+    color: var(--navy); background: #fff; border: 1px solid var(--border); cursor: pointer;
+  }
+  .tile .copy:hover { border-color: var(--navy); }
+  .flash { animation: flash .5s ease-out; }
+  @keyframes flash { from { background: #fff; } to { background: var(--bg); } }
+
+  h2 { margin: 0 0 14px; font-size: 18px; font-weight: 700; color: var(--navy); }
+  h2 .dot { color: var(--orange); }
+  .rates { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  @media (max-width: 480px) { .rates { grid-template-columns: 1fr; } }
+  .rate { display: flex; justify-content: space-between; gap: 12px; font-size: 14px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 12px; }
+  .rate span:first-child { color: var(--slate); font-weight: 500; }
+  .rate span:last-child { color: var(--navy); font-weight: 700; font-variant-numeric: tabular-nums; text-align: right; }
+  .meta { margin: 14px 0 0; font-size: 13px; color: var(--slate); }
+
+  .notice { background: var(--warn-bg); color: var(--warn-text); border-radius: 12px; padding: 12px 14px; font-size: 14px; margin: 0 0 18px; display: none; }
+  .notice.show { display: block; }
+
+  details { margin-top: 16px; border-top: 1px solid var(--border); padding-top: 14px; }
+  summary { cursor: pointer; font-size: 14px; font-weight: 600; color: var(--navy); }
+  .manual { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-top: 12px; }
+  @media (max-width: 480px) { .manual { grid-template-columns: 1fr; } }
+  .manual label { display: block; font-size: 12px; font-weight: 600; color: var(--navy); margin-bottom: 4px; }
+  .manual input { width: 100%; font: inherit; font-size: 16px; font-weight: 600; padding: 10px 12px; border: 1px solid var(--border); border-radius: 10px; color: var(--navy); }
+  .btn-secondary {
+    font: inherit; font-weight: 700; font-size: 13px;
+    color: var(--navy); background: transparent;
+    border: 2px solid var(--navy); border-radius: 8px; padding: 8px 14px; cursor: pointer; margin-top: 12px;
+  }
+  button:focus-visible, input:focus-visible, summary:focus-visible { outline: 2px solid var(--orange); outline-offset: 2px; }
+
+  footer { background: var(--navy); color: rgba(255,255,255,0.8); padding: 28px 20px; font-size: 13px; }
+  footer p { margin: 0 0 4px; }
+  footer .tag { color: #fff; font-weight: 700; }
+  @media (prefers-reduced-motion: reduce) {
+    .pill.live i { animation: none; }
+    .seg .thumb { transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<div class="hero">
+  <div class="wrap">
+    <div class="topbar">
+      <span class="brand">BTC2B Group</span>
+      <span class="pill" id="pill"><i></i><span id="pillText">Connecting</span></span>
+    </div>
+    <p class="kicker">Rates from Binance</p>
+    <h1>Bitcoin converter<span class="dot">.</span></h1>
+    <p class="sub">Sats, BTC, EUR and USD side by side, priced from the live market.</p>
+  </div>
+</div>
+
+<main>
+  <section class="card" aria-label="Converter">
+    <div class="notice" id="notice"></div>
+
+    <div class="seg" id="seg" role="group" aria-label="Unit you are entering" style="--i:0">
+      <span class="thumb"></span>
+      <button type="button" data-unit="sats" aria-pressed="true">sats</button>
+      <button type="button" data-unit="btc" aria-pressed="false">BTC</button>
+      <button type="button" data-unit="eur" aria-pressed="false">EUR</button>
+      <button type="button" data-unit="usd" aria-pressed="false">USD</button>
+    </div>
+
+    <div class="amount">
+      <input id="amount" type="text" inputmode="decimal" autocomplete="off" value="100000" aria-label="Amount">
+      <span class="suffix" id="suffix">sats</span>
+    </div>
+    <div class="chips" id="chips"></div>
+
+    <div class="grid" id="results" aria-live="polite"></div>
+  </section>
+
+  <section class="card" aria-label="Rates">
+    <h2>Rates used<span class="dot">.</span></h2>
+    <div class="rates" id="rates"></div>
+    <p class="meta" id="meta"></p>
+
+    <details id="manualBox">
+      <summary>Set rates manually</summary>
+      <div class="manual">
+        <div>
+          <label for="mEur">BTC price in EUR</label>
+          <input id="mEur" type="number" inputmode="decimal" min="0" step="any" placeholder="Live rate">
+        </div>
+        <div>
+          <label for="mUsd">BTC price in USD</label>
+          <input id="mUsd" type="number" inputmode="decimal" min="0" step="any" placeholder="Live rate">
+        </div>
+      </div>
+      <button class="btn-secondary" id="useLive" type="button">Use live rates</button>
+    </details>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <p class="tag"><a href="https://btc2bgroup.com" target="_blank">BTC2B Group</a> | Bridging Bitcoin to Business.</p>
+  </div>
+</footer>
+
+<script>
+(function () {
+  var SATS_PER_BTC = 100000000;
+  // Same-origin endpoint (the app server caches Binance for 60 s). Direct hosts are used only when opened as a local file.
+  var PROXY_URLS = ["api/price"];
+  var DIRECT_HOSTS = ["https://api.binance.com", "https://data-api.binance.vision"];
+  var POLL_MS = 20000;
+
+  var state = { unit: "sats", eur: null, usd: null, dataTime: null, manual: false, loading: false, failed: false };
+  var $ = function (id) { return document.getElementById(id); };
+  var amountEl = $("amount");
+
+  var LABELS = { sats: "Satoshis", btc: "Bitcoin", eur: "Euro", usd: "US dollar" };
+  var CODES  = { sats: "sats", btc: "BTC", eur: "EUR", usd: "USD" };
+  var PRESETS = {
+    sats: ["1000", "10000", "100000", "1000000"],
+    btc:  ["0.001", "0.01", "0.1", "1"],
+    eur:  ["10", "50", "100", "1000"],
+    usd:  ["10", "50", "100", "1000"]
+  };
+
+  function parseAmount(raw) {
+    var s = String(raw).replace(/\s/g, "");
+    if (!s) return NaN;
+    var hasDot = s.indexOf(".") > -1, hasComma = s.indexOf(",") > -1;
+    if (hasDot && hasComma) {
+      var dec = s.lastIndexOf(".") > s.lastIndexOf(",") ? "." : ",";
+      var thou = dec === "." ? "," : ".";
+      s = s.split(thou).join("").replace(dec, ".");
+    } else if (hasComma) {
+      s = s.replace(",", ".");
+    }
+    var n = Number(s);
+    return isFinite(n) && n >= 0 ? n : NaN;
+  }
+  function fmt(n, d) { return n.toLocaleString("en-US", { minimumFractionDigits: d, maximumFractionDigits: d }); }
+
+  function toBtc(v, unit) {
+    if (unit === "btc") return v;
+    if (unit === "sats") return v / SATS_PER_BTC;
+    if (unit === "eur") return state.eur ? v / state.eur : NaN;
+    if (unit === "usd") return state.usd ? v / state.usd : NaN;
+  }
+  function fromBtc(btc, unit) {
+    if (isNaN(btc)) return null;
+    if (unit === "sats") return fmt(Math.round(btc * SATS_PER_BTC), 0);
+    if (unit === "btc") return fmt(btc, 8);
+    if (unit === "eur") return state.eur ? fmt(btc * state.eur, 2) : null;
+    if (unit === "usd") return state.usd ? fmt(btc * state.usd, 2) : null;
+  }
+
+  function renderChips() {
+    var box = $("chips");
+    box.innerHTML = "";
+    PRESETS[state.unit].forEach(function (p) {
+      var b = document.createElement("button");
+      b.type = "button";
+      b.textContent = fmt(Number(p), p.indexOf(".") > -1 ? p.split(".")[1].length : 0);
+      b.addEventListener("click", function () { amountEl.value = p; render(); });
+      box.appendChild(b);
+    });
+  }
+
+  var lastText = {};
+  function render() {
+    var v = parseAmount(amountEl.value);
+    var btc = isNaN(v) ? NaN : toBtc(v, state.unit);
+    var grid = $("results");
+    grid.innerHTML = "";
+    ["sats", "btc", "eur", "usd"].filter(function (u) { return u !== state.unit; }).forEach(function (u) {
+      var text = fromBtc(btc, u);
+      var tile = document.createElement("div");
+      tile.className = "tile" + (lastText[u] !== undefined && lastText[u] !== text ? " flash" : "");
+      lastText[u] = text;
+      var l = document.createElement("div"); l.className = "label"; l.textContent = LABELS[u];
+      var val = document.createElement("div"); val.className = "value";
+      if (text === null) { val.textContent = "n/a"; }
+      else { val.textContent = text; var s = document.createElement("small"); s.textContent = CODES[u]; val.appendChild(s); }
+      var c = document.createElement("button"); c.type = "button"; c.className = "copy"; c.textContent = "Copy";
+      c.addEventListener("click", function () {
+        if (text === null) return;
+        try {
+          navigator.clipboard.writeText(text.replace(/,/g, "")).then(function () {
+            c.textContent = "Copied"; setTimeout(function () { c.textContent = "Copy"; }, 1200);
+          });
+        } catch (e) {}
+      });
+      tile.appendChild(l); tile.appendChild(val); tile.appendChild(c);
+      grid.appendChild(tile);
+    });
+    renderRates();
+  }
+
+  function renderRates() {
+    var box = $("rates");
+    var rows = [];
+    if (state.eur) rows.push(["1 BTC", fmt(state.eur, 2) + " EUR"]);
+    if (state.usd) rows.push(["1 BTC", fmt(state.usd, 2) + " USD"]);
+    if (state.eur) rows.push(["1 EUR", fmt(SATS_PER_BTC / state.eur, 0) + " sats"]);
+    if (state.usd) rows.push(["1 USD", fmt(SATS_PER_BTC / state.usd, 0) + " sats"]);
+    if (!rows.length) rows.push(["Rates", "not loaded"]);
+    box.innerHTML = "";
+    rows.forEach(function (r) {
+      var d = document.createElement("div"); d.className = "rate";
+      var a = document.createElement("span"); a.textContent = r[0];
+      var b = document.createElement("span"); b.textContent = r[1];
+      d.appendChild(a); d.appendChild(b); box.appendChild(d);
+    });
+  }
+
+  function ageText() {
+    if (!state.dataTime) return "";
+    var s = Math.max(0, Math.round((Date.now() - state.dataTime.getTime()) / 1000));
+    if (s < 5) return "just now";
+    if (s < 60) return s + "s ago";
+    return Math.floor(s / 60) + "m " + (s % 60) + "s ago";
+  }
+  function renderStatus() {
+    var pill = $("pill"), txt = $("pillText"), meta = $("meta");
+    if (state.manual) {
+      pill.className = "pill warn"; txt.textContent = "Manual rates";
+      meta.textContent = "Manual rates are in use. Live updates are paused.";
+    } else if (state.dataTime && !state.failed) {
+      pill.className = "pill live"; txt.textContent = "Live, " + ageText();
+      meta.textContent = "Binance rates as of " + state.dataTime.toLocaleTimeString() + ". The server asks Binance at most once per minute.";
+    } else if (state.dataTime) {
+      pill.className = "pill warn"; txt.textContent = "Stale, " + ageText();
+      meta.textContent = "The last refresh failed. Showing rates from " + state.dataTime.toLocaleTimeString() + ".";
+    } else {
+      pill.className = "pill"; txt.textContent = state.loading ? "Connecting" : "No rates";
+      meta.textContent = "";
+    }
+  }
+
+  function notice(t) { var n = $("notice"); if (t) { n.textContent = t; n.classList.add("show"); } else { n.classList.remove("show"); } }
+
+  async function getJson(url) {
+    var res = await fetch(url, { cache: "no-store" });
+    if (!res.ok) throw new Error("HTTP " + res.status);
+    var data = await res.json();
+    if (Array.isArray(data)) {
+      // direct Binance response (local file mode)
+      var m = {};
+      data.forEach(function (d) { m[d.symbol] = parseFloat(d.price); });
+      if (!m.BTCEUR || !m.BTCUSDT) throw new Error("Missing pair");
+      return { eur: m.BTCEUR, usd: m.BTCUSDT, time: new Date(), stale: false };
+    }
+    if (!(data.eur > 0) || !(data.usd > 0)) throw new Error("Bad response");
+    var t = new Date(data.time);
+    if (isNaN(t.getTime())) t = new Date();
+    return { eur: data.eur, usd: data.usd, time: t, stale: !!data.stale };
+  }
+
+  function candidateUrls() {
+    var list = [];
+    if (location.protocol !== "file:") PROXY_URLS.forEach(function (u) { list.push(u); });
+    else DIRECT_HOSTS.forEach(function (h) { list.push(h + "/api/v3/ticker/price?symbols=" + encodeURIComponent('["BTCEUR","BTCUSDT"]')); });
+    return list;
+  }
+
+  async function loadRates() {
+    if (state.loading || state.manual) return;
+    state.loading = true;
+    renderStatus();
+    var urls = candidateUrls();
+    for (var i = 0; i < urls.length; i++) {
+      try {
+        var r = await getJson(urls[i]);
+        state.eur = r.eur; state.usd = r.usd; state.dataTime = r.time; state.failed = r.stale;
+        state.loading = false;
+        notice("");
+        render(); renderStatus();
+        return;
+      } catch (e) { /* next source */ }
+    }
+    state.failed = true; state.loading = false;
+    if (!state.eur) {
+      notice("Live rates could not be loaded. Open 'Set rates manually' below to enter a BTC price.");
+      $("manualBox").open = true;
+    }
+    render(); renderStatus();
+  }
+
+  // unit switch
+  var order = ["sats", "btc", "eur", "usd"];
+  document.querySelectorAll("#seg button").forEach(function (b) {
+    b.addEventListener("click", function () {
+      var v = parseAmount(amountEl.value);
+      var btc = isNaN(v) ? NaN : toBtc(v, state.unit);
+      state.unit = b.getAttribute("data-unit");
+      document.querySelectorAll("#seg button").forEach(function (x) { x.setAttribute("aria-pressed", x === b ? "true" : "false"); });
+      $("seg").style.setProperty("--i", order.indexOf(state.unit));
+      $("suffix").textContent = CODES[state.unit];
+      if (!isNaN(btc)) {
+        var n = state.unit === "sats" ? Math.round(btc * SATS_PER_BTC)
+              : state.unit === "btc" ? Number(btc.toFixed(8))
+              : state.unit === "eur" && state.eur ? Number((btc * state.eur).toFixed(2))
+              : state.unit === "usd" && state.usd ? Number((btc * state.usd).toFixed(2)) : null;
+        if (n !== null) amountEl.value = String(n);
+      }
+      lastText = {};
+      renderChips(); render();
+    });
+  });
+  amountEl.addEventListener("input", render);
+
+  // manual override
+  function manualChange() {
+    var e = parseFloat($("mEur").value), u = parseFloat($("mUsd").value);
+    if (e > 0 || u > 0) {
+      state.manual = true;
+      if (e > 0) state.eur = e;
+      if (u > 0) state.usd = u;
+      render(); renderStatus();
+    }
+  }
+  $("mEur").addEventListener("input", manualChange);
+  $("mUsd").addEventListener("input", manualChange);
+  $("useLive").addEventListener("click", function () {
+    $("mEur").value = ""; $("mUsd").value = "";
+    state.manual = false; notice("");
+    loadRates();
+  });
+
+  // polling: only while the tab is visible. Calls hit the server cache, Binance is asked at most once per minute.
+  setInterval(function () { if (!document.hidden) loadRates(); }, POLL_MS);
+  document.addEventListener("visibilitychange", function () { if (!document.hidden) loadRates(); });
+  setInterval(renderStatus, 1000);
+
+  renderChips(); render(); renderStatus(); loadRates();
+})();
+</script>
+</body>
+</html>
